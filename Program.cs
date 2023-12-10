@@ -16,30 +16,81 @@ foreach (var s in lines)
 
 
 // functions to replace number words with digits
-static string findStringNum(string str)
+static void findAndReplaceStringNum(string subStr, string codeString, int index, List<string> originalStringList)
 {
-    switch (str)
+    if (subStr == "on") 
+        {
+        string newString = codeString.Remove(index, 3).Insert(index, "on1e");
+
+        int listIndex = originalStringList.IndexOf(codeString);
+
+        originalStringList[listIndex] = newString;
+        }
+    else if (subStr == "tw")
     {
-        case "one":
-            return "1";
-        case "two":
-            return "2";
-        case "three":
-            return "3";
-        case "four":
-            return "4";
-        case "five":
-            return "5";
-        case "six":
-            return "6";
-        case "seven":
-            return "7";
-        case "eight":
-            return "8";
-        case "nine":
-            return "9";
-        default: return "";
+        string newString = codeString.Remove(index, 3).Insert(index, "tw2o");
+
+        int listIndex = originalStringList.IndexOf(codeString);
+
+        originalStringList[listIndex] = newString;
     }
+    else if (subStr == "th")
+    {
+        string newString = codeString.Remove(index, 5).Insert(index, "thre3e");
+
+        int listIndex = originalStringList.IndexOf(codeString);
+
+        originalStringList[listIndex] = newString;
+    }
+    else if (subStr == "fo")
+    {
+        string newString = codeString.Remove(index, 4).Insert(index, "fou4r");
+
+        int listIndex = originalStringList.IndexOf(codeString);
+
+        originalStringList[listIndex] = newString;
+    }
+    else if (subStr == "fi")
+    {
+        string newString = codeString.Remove(index, 4).Insert(index, "fiv5e");
+
+        int listIndex = originalStringList.IndexOf(codeString);
+
+        originalStringList[listIndex] = newString;
+    }
+    else if (subStr == "si")
+    {
+        string newString = codeString.Remove(index, 3).Insert(index, "si6x");
+
+        int listIndex = originalStringList.IndexOf(codeString);
+
+        originalStringList[listIndex] = newString;
+    }
+    else if (subStr == "se")
+    {
+        string newString = codeString.Remove(index, 5).Insert(index, "seve7n");
+
+        int listIndex = originalStringList.IndexOf(codeString);
+
+        originalStringList[listIndex] = newString;
+    }
+    else if (subStr == "ei")
+    {
+        string newString = codeString.Remove(index, 5).Insert(index, "eigh8t");
+
+        int listIndex = originalStringList.IndexOf(codeString);
+
+        originalStringList[listIndex] = newString;
+    }
+    else if (subStr == "ni")
+    {
+        string newString = codeString.Remove(index, 4).Insert(index, "nin9e");
+
+        int listIndex = originalStringList.IndexOf(codeString);
+
+        originalStringList[listIndex] = newString;
+    }
+
 }
 
 List<string> testNumStrings = new List<string>();
@@ -53,39 +104,52 @@ testNumStrings.Add("seven");
 testNumStrings.Add("eight");
 testNumStrings.Add("nine");
 
-static string replaceStringWithNumString(string codeString, List<string> stringNumList, List<string> newCodeList)
+static void replaceStringWithNumString(string codeString, List<string> stringNumList, List<string> originalList)
 {
-    for (int k = 0; k < stringNumList.Count; k++)
+
+    int originalIndex = originalList.IndexOf(codeString);
+
+    // replace number word at codeString beginning (if any)
+    int startPos = stringNumList.Select(o => codeString.IndexOf(o))
+                      .Where(i => i != -1).DefaultIfEmpty(-1).Min();
+
+    if (startPos >= 0)
     {
-        if (codeString.Contains(stringNumList[k]))
-        {
-            string num = stringNumList[k];
-            int index = codeString.IndexOf(num);
-            string cleanPath = (index < 0)
-                ? codeString
-                : codeString.Replace(num, findStringNum(num));
-            newCodeList.Add(cleanPath);
-        }
+        string subStartStr = codeString.Substring(startPos, 2);
+
+        findAndReplaceStringNum(subStartStr, codeString, startPos, originalList);
     }
 
-    return "";
+    // replace number word at codeString end (if any), using updated codeString
+    string newCodeString = originalList[originalIndex];
+
+    int endPos = stringNumList.Select(o => newCodeString.IndexOf(o))
+                      .Where(i => i != -1).DefaultIfEmpty(-1).Max();
+
+    if (endPos >= 0)
+    {
+        string subEndStr = newCodeString.Substring(endPos, 2);
+
+        findAndReplaceStringNum(subEndStr, newCodeString, endPos, originalList);
+    }
+
 }
 
 // number names are converted to digits in preparation of final summation
-List<string> newCodeList = new List<string>();
+//originalCodeList.ForEach(x => Console.WriteLine(x));
 
 for (int i = 0; i < originalCodeList.Count; i++)
 {
-    replaceStringWithNumString(originalCodeList[i], testNumStrings, newCodeList);
+    replaceStringWithNumString(originalCodeList[i], testNumStrings, originalCodeList);
 }
 
 // newCodeList is looped through to count the first and last string digits and then sum them
-List<long> sumList = new List<long>();
-long totalSum = 0;
+List<int> sumList = new List<int>();
+int totalSum = 0;
 
 try
 {
-    foreach (string inputString in newCodeList)
+    foreach (string inputString in originalCodeList)
     {
         {
             List<char> lineNumsList = new List<char>();
@@ -101,7 +165,7 @@ try
             }
 
             string sumListEntry;
-            long parsedSumListEntry;
+            int parsedSumListEntry;
 
             if (lineNumsList.Count == 1 && lineNumsList[0] != '0')
             {
