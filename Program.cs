@@ -3,134 +3,75 @@
 using System.Text;
 
 // convert lines from string[] to List<string>
-var lines = System.IO.File.ReadAllLines(@"C:\Users\CharlieW\source\repos\advent_of_code_23\input.txt");
-List<string> originalCodeList = new List<string>();
+var games = System.IO.File.ReadAllLines(@"C:\Users\CharlieW\source\repos\advent_of_code_23\input.txt");
 
-foreach (var s in lines)
+List<string> originalGameList = new List<string>();
+
+List<int[]> newGameList = new List<int[]>();
+
+foreach (var g in games)
 {
-    originalCodeList.Add(s);
+    originalGameList.Add(g);
 }
 
-
-// functions to replace number words with digits, leaving letters to account for instances of overlap
-static void replaceStringWithNumString(string codeString, List<string> originalList)
+for (int i = 0; i < originalGameList.Count; i++)
 {
-    int originalIndex = originalList.IndexOf(codeString);
+    string currentGame = originalGameList[i];
 
-    StringBuilder sb = new StringBuilder(codeString);
+    // extract game # in int format
+    string gameNumString = currentGame.Split(':')[0];
 
-    if (codeString.Contains("one"))
+    int gameNum = int.Parse(gameNumString.Split(" ")[1]);
+
+    // format game outcomes for summation
+    int isPossible = 1;
+
+    string gameOutcomeString = currentGame.Split(":")[1].Trim();
+
+    string[] subGamesArray = gameOutcomeString.Split(";");
+
+    foreach (var miniGame in subGamesArray)
     {
-        sb.Replace("one", "on1e");
-    }
+        string[] colorTallys = miniGame.Split(",");
 
-    if (codeString.Contains("two"))
-    {
-        sb.Replace("two", "tw2o");
-    }
+        List<string> trimmedList = new List<string>();
 
-    if (codeString.Contains("three"))
-    {
-        sb.Replace("three", "thre3e");
-    }
-
-    if (codeString.Contains("four"))
-    {
-        sb.Replace("four", "fou4r");
-    }
-
-    if (codeString.Contains("five"))
-    {
-        sb.Replace("five", "fiv5e");
-    }
-
-    if (codeString.Contains("six"))
-    {
-        sb.Replace("six", "si6x");
-    }
-
-    if (codeString.Contains("seven"))
-    {
-        sb.Replace("seven", "seve7n");
-    }
-
-    if (codeString.Contains("eight"))
-    {
-        sb.Replace("eight", "eigh8t");
-    }
-
-    if (codeString.Contains("nine"))
-    {
-        sb.Replace("nine", "nin9e");
-    }
-
-    string newString = sb.ToString();
-
-    originalList[originalIndex] = newString;
-}
-
-// number strings are converted to digits in preparation of final summation
-for (int i = 0; i < originalCodeList.Count; i++)
-{
-    replaceStringWithNumString(originalCodeList[i], originalCodeList);
-}
-
-// newCodeList is looped through to count the first and last string digits, parse them, and then sum them
-List<int> sumList = new List<int>();
-int totalSum = 0;
-
-try
-{
-    foreach (string inputString in originalCodeList)
-    {
+        // miniGames are now trimmed and formatted equivalently 
+        foreach (var ct in colorTallys)
         {
-            List<char> lineNumsList = new List<char>();
-
-            for (int j = 0; j < inputString.Length; j++)
-            {
-                char c = inputString[j];
-
-                if (char.IsDigit(c))
-                {
-                    lineNumsList.Add(c);
-                }
-            }
-
-            string sumListEntry;
-            int parsedSumListEntry;
-
-            if (lineNumsList.Count == 1 && lineNumsList[0] != '0')
-            {
-
-                sumListEntry = string.Concat(lineNumsList[0], lineNumsList[0]);
-
-                parsedSumListEntry = int.Parse(sumListEntry);
-
-                sumList.Add(parsedSumListEntry);
-
-            }
-            else if (lineNumsList.Count >= 2)
-            {
-                sumListEntry = string.Concat(lineNumsList[0], lineNumsList[lineNumsList.Count - 1]);
-
-                parsedSumListEntry = int.Parse(sumListEntry);
-
-                sumList.Add(parsedSumListEntry);
-            }
+            string trimmedTally = ct.Trim();
+            trimmedList.Add(trimmedTally);
         }
 
+        foreach (var tally in trimmedList)
+        {
+            int tallyNum = int.Parse(tally.Split(" ")[0]);
+
+            string tallyColor = tally.Split(" ")[1];
+
+            if ((tallyColor == "red" && tallyNum > 12) || (tallyColor == "green" && tallyNum > 13) || (tallyColor == "blue" && tallyNum > 14))
+            {
+                isPossible = 0;
+            }
+        }
     }
 
-}
-catch (Exception e)
-{
-    Console.WriteLine("Exception: " + e.Message);
-}
-finally
-{
-    sumList.ForEach(x => totalSum += x);
-    Console.WriteLine(totalSum.ToString());
+    // create array with values and push into new list
+    int[] gameStats = { gameNum, isPossible };
+
+    newGameList.Add(gameStats);
 }
 
+// iterate through formatted data to sum game ID values
+int totalSum = 0;
+for (int i = 0; i < newGameList.Count; i++)
+{
+    if (newGameList[i][1] == 1)
+    {
+        totalSum += newGameList[i][0];
+    }
+}
+
+Console.WriteLine(totalSum);
 
 
