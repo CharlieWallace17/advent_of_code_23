@@ -23,8 +23,8 @@ for (int i = 0; i < originalGameList.Count; i++)
 
     int gameNum = int.Parse(gameNumString.Split(" ")[1]);
 
-    // format game outcomes for summation
-    int isPossible = 1;
+    // format game outcomes for power and summation
+    int[] gameStats = { gameNum, 0, 0, 0 };
 
     string gameOutcomeString = currentGame.Split(":")[1].Trim();
 
@@ -49,15 +49,13 @@ for (int i = 0; i < originalGameList.Count; i++)
 
             string tallyColor = tally.Split(" ")[1];
 
-            if ((tallyColor == "red" && tallyNum > 12) || (tallyColor == "green" && tallyNum > 13) || (tallyColor == "blue" && tallyNum > 14))
-            {
-                isPossible = 0;
-            }
+            if (tallyColor == "red" && tallyNum > gameStats[1]) gameStats[1] = tallyNum;
+            if (tallyColor == "green" && tallyNum > gameStats[2]) gameStats[2] = tallyNum;
+            if (tallyColor == "blue" && tallyNum > gameStats[3]) gameStats[3] = tallyNum;
         }
     }
 
     // create array with values and push into new list
-    int[] gameStats = { gameNum, isPossible };
 
     newGameList.Add(gameStats);
 }
@@ -66,10 +64,8 @@ for (int i = 0; i < originalGameList.Count; i++)
 int totalSum = 0;
 for (int i = 0; i < newGameList.Count; i++)
 {
-    if (newGameList[i][1] == 1)
-    {
-        totalSum += newGameList[i][0];
-    }
+    int gamePower = newGameList[i][1] * newGameList[i][2] * newGameList[i][3];
+    totalSum += gamePower;
 }
 
 Console.WriteLine(totalSum);
