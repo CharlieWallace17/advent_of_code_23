@@ -3,134 +3,37 @@
 using System.Text;
 
 // convert lines from string[] to List<string>
-var lines = System.IO.File.ReadAllLines(@"C:\Users\CharlieW\source\repos\advent_of_code_23\input.txt");
-List<string> originalCodeList = new List<string>();
+string[] lines = System.IO.File.ReadAllLines(@"C:\Users\CharlieW\source\repos\advent_of_code_23\input.txt");
 
-foreach (var s in lines)
+for (int i = 0; i < lines.Length; i++)
 {
-    originalCodeList.Add(s);
-}
+    string line = lines[i];
 
-
-// functions to replace number words with digits, leaving letters to account for instances of overlap
-static void replaceStringWithNumString(string codeString, List<string> originalList)
-{
-    int originalIndex = originalList.IndexOf(codeString);
-
-    StringBuilder sb = new StringBuilder(codeString);
-
-    if (codeString.Contains("one"))
+    for (int j = 0; j < line.Length; j++)
     {
-        sb.Replace("one", "on1e");
-    }
+        char l = line[j];
 
-    if (codeString.Contains("two"))
-    {
-        sb.Replace("two", "tw2o");
-    }
+        string stringNum = l.ToString();
 
-    if (codeString.Contains("three"))
-    {
-        sb.Replace("three", "thre3e");
-    }
+        int indexPointer = j;
 
-    if (codeString.Contains("four"))
-    {
-        sb.Replace("four", "fou4r");
-    }
-
-    if (codeString.Contains("five"))
-    {
-        sb.Replace("five", "fiv5e");
-    }
-
-    if (codeString.Contains("six"))
-    {
-        sb.Replace("six", "si6x");
-    }
-
-    if (codeString.Contains("seven"))
-    {
-        sb.Replace("seven", "seve7n");
-    }
-
-    if (codeString.Contains("eight"))
-    {
-        sb.Replace("eight", "eigh8t");
-    }
-
-    if (codeString.Contains("nine"))
-    {
-        sb.Replace("nine", "nin9e");
-    }
-
-    string newString = sb.ToString();
-
-    originalList[originalIndex] = newString;
-}
-
-// number strings are converted to digits in preparation of final summation
-for (int i = 0; i < originalCodeList.Count; i++)
-{
-    replaceStringWithNumString(originalCodeList[i], originalCodeList);
-}
-
-// newCodeList is looped through to count the first and last string digits, parse them, and then sum them
-List<int> sumList = new List<int>();
-int totalSum = 0;
-
-try
-{
-    foreach (string inputString in originalCodeList)
-    {
+        if (char.IsDigit(l))
         {
-            List<char> lineNumsList = new List<char>();
+            char nextChar = line[indexPointer + 1];
 
-            for (int j = 0; j < inputString.Length; j++)
+            while (nextChar != '.' && nextChar != '\n')
             {
-                char c = inputString[j];
+                stringNum.Concat(nextChar.ToString());
 
-                if (char.IsDigit(c))
-                {
-                    lineNumsList.Add(c);
-                }
+                indexPointer++;
             }
 
-            string sumListEntry;
-            int parsedSumListEntry;
-
-            if (lineNumsList.Count == 1 && lineNumsList[0] != '0')
-            {
-
-                sumListEntry = string.Concat(lineNumsList[0], lineNumsList[0]);
-
-                parsedSumListEntry = int.Parse(sumListEntry);
-
-                sumList.Add(parsedSumListEntry);
-
-            }
-            else if (lineNumsList.Count >= 2)
-            {
-                sumListEntry = string.Concat(lineNumsList[0], lineNumsList[lineNumsList.Count - 1]);
-
-                parsedSumListEntry = int.Parse(sumListEntry);
-
-                sumList.Add(parsedSumListEntry);
-            }
+            int fullNum = int.Parse(stringNum);
         }
-
     }
+}
 
-}
-catch (Exception e)
-{
-    Console.WriteLine("Exception: " + e.Message);
-}
-finally
-{
-    sumList.ForEach(x => totalSum += x);
-    Console.WriteLine(totalSum.ToString());
-}
+
 
 
 
