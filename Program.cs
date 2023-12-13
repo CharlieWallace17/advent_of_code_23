@@ -2,8 +2,9 @@
 
 using System.Text;
 
-// convert lines from string[] to List<string>
-string[] lines = System.IO.File.ReadAllLines(@"C:\Users\CharlieW\source\repos\advent_of_code_23\input.txt");
+string[] lines = System.IO.File.ReadAllLines(@"C:\Users\CharlieW\source\repos\advent_of_code_23\input2.txt");
+
+int totalSum = 0;
 
 for (int i = 0; i < lines.Length; i++)
 {
@@ -23,16 +24,52 @@ for (int i = 0; i < lines.Length; i++)
 
             while (nextChar != '.' && nextChar != '\n')
             {
-                stringNum.Concat(nextChar.ToString());
+                stringNum += nextChar.ToString();
 
                 indexPointer++;
+
+                nextChar = line[indexPointer + 1];
             }
 
             int fullNum = int.Parse(stringNum);
+
+            if (checkValidNum(fullNum, j, indexPointer, i, lines))
+            {
+                totalSum += fullNum;
+            }
         }
+
+        j = indexPointer;
     }
+
+    Console.WriteLine(totalSum);
 }
 
+
+static bool checkValidNum(int num, int startIdx, int endIdx, int currentLineIdx, string[] lines)
+{
+    string top = "";
+    if (currentLineIdx > 0) top = lines[currentLineIdx - 1].Substring(startIdx - 1, num.ToString().Length);
+    string left = "";
+    if (startIdx > 0) left = lines[currentLineIdx][startIdx - 1].ToString();
+    string right = "";
+    if ((endIdx + 1) < lines[currentLineIdx].Length) right = lines[currentLineIdx][endIdx + 1].ToString();
+    string bottom = "";
+    if ((currentLineIdx + 1) <= (lines.Length - 1)) bottom = lines[currentLineIdx + 1].Substring((startIdx - 1 < 0 ? startIdx : startIdx - 1), num.ToString().Length);
+
+    StringBuilder sb = new StringBuilder();
+    string checkStrings = sb.Append(top + left + right + bottom).ToString();
+
+    foreach (char c in checkStrings)
+    {
+        if (!char.IsDigit(c) && c != '.')
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
 
 
 
