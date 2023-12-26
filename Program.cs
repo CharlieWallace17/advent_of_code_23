@@ -14,75 +14,137 @@ for (int i = 0; i < lines.Length; i++)
     {
         char l = line[j];
 
-        string stringNum = "";
-
-        int indexPointer = j;
-
-        if (char.IsDigit(l))
+        if (l == '*')
         {
-            stringNum = l.ToString();
+            //build string out of star border
+            string top = findTop(lines, i, j);
 
-            char nextChar = line[indexPointer + 1];
+            string bottom = findBottom(lines, i, j);
 
-            while (char.IsDigit(nextChar) && (indexPointer + 1 < line.Length))
+            string left = findLeft(lines, i, j);
+
+            string right = findRight(lines, i, j);
+
+            StringBuilder sb = new StringBuilder();
+
+            string allSides = sb.Append(top + "." + bottom + "." + left + "." + right).ToString();
+
+            string currentStringNum = "";
+
+            List<int> numList = new List<int>();
+
+            int numCounter = 0;
+
+            //iterate through string and create list of numbers
+            for (int k = 0; k < allSides.Length; k++)
             {
-                stringNum += nextChar.ToString();
+                if (char.IsDigit(allSides[k]))
+                {
+                    currentStringNum += allSides[k];
+                }
 
-                indexPointer++;
+                if ((!char.IsDigit(allSides[k]) && currentStringNum.Length > 0) || (k + 1 == allSides.Length && currentStringNum.Length > 0))
+                {
+                    int currentNum = int.Parse(currentStringNum);
 
-                nextChar = line[indexPointer + 1 < line.Length ? indexPointer + 1 : indexPointer];
+                    numList.Add(currentNum);
+
+                    numCounter++;
+
+                    currentStringNum = "";
+                }
             }
 
-            int fullNum = 0;
-
-            if (int.TryParse(stringNum, out int result)) fullNum = int.Parse(stringNum);
-
-            Console.WriteLine("Checking if num counts: " + fullNum);
-            Console.WriteLine("Counts?: " + checkValidNum(fullNum, j, indexPointer, i, lines));
-
-            if (fullNum != 0 && checkValidNum(fullNum, j, indexPointer, i, lines))
+            //check number length and add to totalSum if applicable
+            if (numList.Count == 2)
             {
-                totalSum += fullNum;
 
-                Console.WriteLine(totalSum);
+                int ratioNum = numList[0] * numList[1];
+
+                totalSum += ratioNum;
             }
 
-            j = indexPointer + 1;
+            numList.Clear();
         }
     }
 }
 
 Console.WriteLine(totalSum);
 
-
-static bool checkValidNum(int num, int startIdx, int endIdx, int currentLineIdx, string[] lines)
+static string findTop(string[] lines, int currentLineIndex, int currentCharIndex)
 {
-    string top = "";
-    if (currentLineIdx > 0) top = lines[currentLineIdx - 1].Substring((startIdx - 1 < 0 ? startIdx : startIdx - 1), num.ToString().Length + (startIdx - 1 < 0 ? 1 : endIdx + 2 < lines[currentLineIdx].Length ? 2 : 1));
+    if (currentLineIndex == 0) return "";
 
-    string left = "";
-    if (startIdx > 0) left = lines[currentLineIdx][startIdx - 1].ToString();
+    string topLine = lines[currentLineIndex - 1];
 
-    string right = "";
-    if ((endIdx + 1) < lines[currentLineIdx].Length) right = lines[currentLineIdx][endIdx + 1].ToString();
-
-    string bottom = "";
-    if ((currentLineIdx + 1) < lines.Length) bottom = lines[currentLineIdx + 1].Substring((startIdx - 1 < 0 ? startIdx : startIdx - 1), num.ToString().Length + (startIdx - 1 < 0 ? 1 : endIdx + 2 < lines[currentLineIdx].Length ? 2 : 1));
-
-    StringBuilder sb = new StringBuilder();
-    string checkStrings = sb.Append(top + left + right + bottom).ToString();
-
-    foreach (char c in checkStrings)
+    int startingPos = currentCharIndex - 1 > 0 ? currentCharIndex - 1 : currentCharIndex;
+    if (char.IsDigit(topLine[startingPos - 1]) && startingPos - 1 >= 0)
     {
-        if (!char.IsDigit(c) && c != '.')
-        {
-            return true;
-        }
+        startingPos--;
     }
 
-    return false;
+    int endingPos = currentCharIndex + 1 < topLine.Length ? currentCharIndex + 1 : currentCharIndex;
+    if (char.IsDigit(topLine[startingPos + 1]) && startingPos + 1 < topLine.Length)
+    {
+        startingPos++;
+    }
+
+    return topLine.Substring(startingPos, endingPos - startingPos) ?? "";
 }
 
+static string findBottom(string[] lines, int currentLineIndex, int currentCharIndex)
+{
+    if (currentLineIndex + 1 >= lines.Length) return "";
 
+    string bottomLine = lines[currentLineIndex + 1];
+
+    int startingPos = currentCharIndex - 1 > 0 ? currentCharIndex - 1 : currentCharIndex;
+    if (char.IsDigit(bottomLine[startingPos - 1]) && startingPos - 1 >= 0)
+    {
+        startingPos--;
+    }
+
+    int endingPos = currentCharIndex + 1 < bottomLine.Length ? currentCharIndex + 1 : currentCharIndex;
+    if (char.IsDigit(bottomLine[startingPos + 1]) && startingPos + 1 < bottomLine.Length)
+    {
+        startingPos++;
+    }
+
+    return bottomLine.Substring(startingPos, endingPos - startingPos) ?? "";
+}
+
+static string findLeft(string[] lines, int currentLineIndex, int currentCharIndex)
+{
+    if (currentCharIndex - 1 < 0) return "";
+
+    string leftLine = lines[currentLineIndex];
+
+    int startingPos = currentCharIndex - 1 > 0 ? currentCharIndex - 1 : currentCharIndex;
+    if (char.IsDigit(leftLine[startingPos - 1]) && startingPos - 1 >= 0)
+    {
+        startingPos--;
+    }
+
+    int endingPos = currentCharIndex;
+
+    return leftLine.Substring(startingPos, endingPos - startingPos) ?? "";
+}
+
+static string findRight(string[] lines, int currentLineIndex, int currentCharIndex)
+{
+    if (currentCharIndex + 1 >= lines.Length) return "";
+
+    string rightLine = lines[currentLineIndex];
+
+    int startingPos = currentCharIndex;
+
+    int endingPos = currentCharIndex + 1 < rightLine.Length ? currentCharIndex + 1 : currentCharIndex;
+    if (char.IsDigit(rightLine[startingPos + 1]) && startingPos + 1 < rightLine.Length)
+    {
+        endingPos++;
+    }
+
+    return rightLine.Substring(startingPos, endingPos - startingPos) ?? "";
+}
 
 
